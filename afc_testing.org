@@ -1,0 +1,129 @@
+#+AUTHOR:Aylons
+#+LATEX_HEADER: \usepackage{pdflscape}
+* LNLS AFC for BPM electronics testing guide
+
+** Quick introduction to AFC architecture blabla
+
+AFC - AMC FMC Carrier - is a versatile board built around a Xilinx Artix 7 FPGA. Its main purpose is to act as a data acquisition and communication board in MicroTCA.4 crates, connecting itself to both the crate (via the AMC backplane connector) and add-on cards, which may be one or two FMCs mounted on the board, or a MicroTCA Rear-Transition Module, which connectos to the board via the Zone 3 connector.
+
+Besides the FPGA, the board also carries a microcontroller - specifically a NXP LPC1764 - which is called MMC - Module Manage Controller. This microcontroller is responsible for board-related tasks, such as DC-DC converters operation, temperature sensing, communication with the crate manager, firmware updates and device configuration.  This is in opposition to application-related tasks, which are performed by the FPGA.
+
+The FPGA is also connected the a DDR3 SDRAM block with 4 ICs, which are only accessible via the FPGA. Other devices in the board includes a signal crossbar IC, which works as a clock distribution device, switches for internal I2C busses, temperature and current sensors, JTAG switches, DC-DC converters and peripheral circuits for both the microcontroller and the FPGA.
+
+#+CAPTION: Block diagram with AFC digital connections.
+#+NAME: fig:greg-diagram
+[[./greg-diagram.png]]
+
+** Connectors in the AFC
+   
+All three connectors in the AFC (AMC, RTM and FMC) carries all these kinds of signals:
+
+ * single-ended slow digital signals, such as I2C or GPIO connections
+ * differential multigigabit, always connected to the FPGA transceivers
+ * clock signals, some bidirectional, up to several hundred MHZ
+ * power lanes, with power going to the AFC in the case of the AMC connector, and from the AFC in the FMC and RTM connectors
+
+No device in the board routes all these signals - some go the FPGA, some to the MMC, some others are first routed to the clock distribution IC. On the other side of the AMC connection, some signals are send to the main MCH, others to the redundant MCH, while others can only be reached by other AMCs.
+
+*** AMC connector
+
+This is the main connector in the board, connecting the AFC to the MicroTCA.4 backplane. From this connection the AFC receives power (3V3 and 12V), communicates with the crate management (using a I2C interface), get or send clock signals and realizes massive data transfers to and from other boards in the crate, using protocols such as 1GBe and PCIe.
+
+The AMC connector is in the rear board edge, and in the AFC it is implemented as a double-sided finger connector, etched in the PCB. This connector has 170 connected pins, with different sizes for different purposes. The space between smaller pins and the board edge are filled with unconnected pads that with solely mechanical functions, protecting both the AMC board and the backplane connector.
+
+The schematic component for the AMC connector is in [[docview:AMC_FMC_Carrier.pdf::1][page 1 of the AFC schematic sheet]]. Please note that only pins 1-170 are real pins, while pins 171-274 represents protective pads that shall not be electrically connected. In the PCB layout, pin 1 is near the corner of bottom layer, where both the FPGA and the FMC connectors are mounted. The pin number counts up in the same side, with pin 85 being in the bottom layer, close to the RTM connetor. Pin 86 is the upmost pin of the top layer, near the RTM connector. Finally, pin 170 is marked by a slight stub in the middle of the pin, and is located in the lower part of the top layer, near the corner of the board.
+
+*** FMC Connectors
+
+*** RTM Connecto
+*** MGT ports
+
+One peculiarity of the multigigabit (MGT) signals in the AFC board is the routing of the same signal from the FPGA to several connectors, with the paths separated by capacitors which may or may not be placed, and effectively work as high speed jumpers. 
+
+Even thought it is neither possible nor desired to route the same MGT link to several connector pins, this scheme allows the designer to choose which signal will route to wich connector by placing a capacitor while not placing the other.
+
+#+BEGIN_landscape
+
+  +-----------+---------+------------------+-------------------------+--------------------+
+  |Transceiver|Connector|Connector pin     |Function                 |Jumper cap          |
+  |           +         +-----+---+----+---+                         +----+----+----+-----+
+  |           |         |RxN  |RxP|TxN |TxP|                         | RxN|RxP |TxN |TxP  |
+  +===========+=========+=====+===+====+===+=========================+====+====+====+=====+
+  |113_3      |AMC      |105  |106|108 |109|Fat Pipe 2 - Port 11     |C330|C331|C332|C333 |
+  |           +---------+-----+---+----+---+-------------------------+----+----+----+-----+
+  |           |AMC      |15   |14 |12  |13 |1Gb Ethernet - Port 0    |C224|C223|C222|C221 |
+  +-----------+---------+-----+---+----+---+-------------------------+----+----+----+-----+
+  |113_2      |AMC      |99   |100|102 |103|Fat Pipe 2 - Port 10     |C329|C328|C327|C326 |
+  |           +---------+-----+---+----+---+-------------------------+----+----+----+-----+
+  |           |AMC      |24   |23 |21  |20 |1Gb Ethernet - Port 1    |C625|C228|C227|C225 |
+  +-----------+---------+-----+---+----+---+-------------------------+----+----+----+-----+
+  |113_1      |AMC      |33   |32 |30  |29 |SATA - Port 2 [1]        |C512|C455|C514|C575 |
+  |           +---------+-----+---+----+---+-------------------------+----+----+----+-----+
+  |           |AMC      |93   |94 |96  |97 |Fat Pipe 2 - Port 9      |C325|C324|C323|C322 |
+  +-----------+---------+-----+---+----+---+-------------------------+----+----+----+-----+
+  |113_0      |AMC      |39   |38 |36  |35 |SATA - Port 3 [1]        |C751|C590|C752|C753 |
+  |           +---------+-----+---+----+---+-------------------------+----+----+----+-----+
+  |           |AMC      |87   |88 |90  |91 |Fat Pipe 2 - Port 8      |C321|C320|C319|C318 |
+  +-----------+---------+-----+---+----+---+-------------------------+----+----+----+-----+
+  |116_3      |RTM      |D6   |C6 |F6  |E6 |RTM MGT - Port 5         |C793|C791|C790|C789 |
+  |           +---------+-----+---+----+---+-------------------------+----+----+----+-----+
+  |           |FMC1     |C7   |C6 |C3  |C2 |FMC1 MGT - Port 0        |c181|c180|c179|c178 |
+  +-----------+---------+-----+---+----+---+-------------------------+----+----+----+-----+
+  |116_2      |RTM      |D3   |C3 |F3  |E3 |RTM MGT - PORT 8         |C788|C787|C786|C785 |   
+  |           +---------+-----+---+----+---+-------------------------+----+----+----+-----+
+  |           |FMC1     |A3   |A2 |A23 |A22|FMC1 MGT - PORT 1        |C187|C186|C185|C184 |
+  +-----------+---------+-----+---+----+---+-------------------------+----+----+----+-----+
+  |116_1      |RTM      |D4   |C4 |F4  |E4 |RTM MGT - PORT 7         |C784|C783|C782|C781 |
+  |           +---------+-----+---+----+---+-------------------------+----+----+----+-----+
+  |           |FMC1     |A7   |A6 |A27 |A26|FMC1 MGT - PORT 2        |C193|C192|C191|C190 |
+  +-----------+---------+-----+---+----+---+-------------------------+----+----+----+-----+
+  |116_0      |RTM      |D5   |C5 |F5  |E5 |RTM MGT - PORT 6         |C780|C779|C778|C777 |
+  |           +---------+-----+---+----+---+-------------------------+----+----+----+-----+
+  |           |FMC1     |A11  |A10|A31 |A30|FMC1 MGT - PORT 3        |C197|C196|C195|C194 |
+  +-----------+---------+-----+---+----+---+-------------------------+----+----+----+-----+ 
+  |213_3      |RTM      |D7   |C7 |F7  |E7 |RTM MGT - PORT 4         |C812|C811|C810|C809 |
+  |           +---------+-----+---+----+---+-------------------------+----+----+----+-----+
+  |           |FMC2     |A11  |A10|A31 |A30|FMC2 MGT - PORT 3        |C632|C630|C628|C626 |
+  +-----------+---------+-----+---+----+---+-------------------------+----+----+----+-----+
+  |213_2      |RTM      |D8   |C8 |F8  |E8 |RTM MGT - PORT 3         |C808|C807|C806|C805 |
+  |           +---------+-----+---+----+---+-------------------------+----+----+----+-----+
+  |           |FMC2     |A7   |A6 |A27 |A26|FMC 2 MGT - PORT 2       |C633|C631|C629|C627 |
+  +-----------+---------+-----+---+----+---+-------------------------+----+----+----+-----+
+  |213_1      |RTM      |D9   |C9 |F9  |E9 |RTM MGT - PORT 2         |C804|C803|C802|C801 |
+  |           +---------+-----+---+----+---+-------------------------+----+----+----+-----+
+  |           |FMC2     |A3   |A2 |A23 |A22|FMC MGT - PORT 1         |C207|C206|C205|C204 |
+  +-----------+---------+-----+---+----+---+-------------------------+----+----+----+-----+
+  |213_0      |RTM      |D10  |C10|F10 |E10|RTM MGT - PORT 1         |C800|C798|C796|C795 |
+  |           +---------+-----+---+----+---+-------------------------+----+----+----+-----+
+  |           |FMC2     | C7  |C6 |C3  |C2 |FMC MGT - PORT 0         |C201|C200|C199|C198 |
+  +-----------+---------+-----+---+----+---+-------------------------+----+----+----+-----+
+  |216_3      |AMC      |69   |68 |66  |65 |Fat Pipe 1 Port 7 - PCIe |C345|C344|C343|C342 |
+  +-----------+---------+-----+---+----+---+-------------------------+----+----+----+-----+
+  |216_2      |AMC      |63   |62 |60  |59 |Fat Pipe 1 Port 6 - PCIe |C349|C348|C347|C346 |
+  +-----------+---------+-----+---+----+---+-------------------------+----+----+----+-----+
+  |216_1      |AMC      |54   |53 |51  |50 |Fat Pipe 1 Port 5 - PCIe |C341|C340|C339|C338 |
+  +-----------+---------+-----+---+----+---+-------------------------+----+----+----+-----+
+  |216_0      |AMC      |48   |47 |45  |44 |Fat Pipe 1 Port 4 - PCIe |C337|C336|C335|C334 |
+  +-----------+---------+-----+---+----+---+-------------------------+----+----+----+-----+
+
+
+[1] If this option is choosen, the SATA ports may also be redirected from the MGT to board-to-cable connectors, instead of the AMC connector. So, in addition to the capacitors in the last table, the following capacitors must also be removed/added to direct the signal to the desired connector:
+
+  +-----------+------------------+---------------------------+--------------------+
+  |Port       |Connector         |Connector pin              |Jumper cap          |
+  |           +                  +------+------+------+------+----+----+----+-----+
+  |           |                  |RxN   |RxP   |TxN   |TxP   | RxN|RxP |TxN |TxP  |
+  +===========+==================+======+======+======+======+====+====+====+=====+
+  |SATA Port 2|AMC               |33    |32    |30    |29    |C760|C761|C759|C758 |
+  |           +------------------+------+------+------+------+----+----+----+-----+
+  |           |SATA Cable J13    |3     |2     |6     |5     |C213|C214|C212|C211 |
+  +-----------+------------------+------+------+------+------+----+----+----+-----+
+  |SATA Port 3|AMC               |39    |38    |36    |35    |C756|C757|C755|C754 |
+  |           +------------------+------+------+------+------+----+----+----+-----+
+  |           |SATA Cable J14    |3     |2     |6     |5     |C217|C218|C216|C215 |
+  |           +------------------+------+------+------+------+----+----+----+-----+
+  |           |RTM/FMC - must    |F5/K12|E5/L12|B5/G11|A5/H11|C820|C821|C818|C819 |
+  |           |also add resistor |      |      |      |      |R323|R322|R324|R325 |
+  +-----------+------------------+------+------+------+------+----+----+----+-----+
+
+#+END_landscape

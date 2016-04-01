@@ -1,8 +1,9 @@
-#+AUTHOR:Aylons
+#+TITLE: Guide for testing LNLS BPM's AFC
+#+AUTHOR:Gustavo Bruno and Vitor Finotti
 #+LATEX_HEADER: \usepackage{pdflscape}
 * LNLS AFC for BPM electronics testing guide
 
-** Quick introduction to AFC architecture blabla
+** Quick introduction to AFC architecture
 
 The AMC FMC Carrier (AFC) is a versatile board built around a Xilinx Artix 7 FPGA. Its main purpose is to act as a data acquisition and communication board in MicroTCA.4 crates, connecting itself to both the crate (via the AMC backplane connector) and the add-on cards, which may be one or two FMCs mounted on the board, or a MicroTCA Rear-Transition Module, which connects to the board via the Zone 3 connector.
 

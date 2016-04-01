@@ -1,3 +1,4 @@
+#+LaTeX_CLASS: hitec
 #+TITLE: Guide for testing LNLS BPM's AFC
 #+AUTHOR:Gustavo Bruno and Vitor Finotti
 #+LATEX_HEADER: \usepackage{pdflscape}

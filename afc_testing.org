@@ -4,54 +4,54 @@
 
 ** Quick introduction to AFC architecture blabla
 
-AFC - AMC FMC Carrier - is a versatile board built around a Xilinx Artix 7 FPGA. Its main purpose is to act as a data acquisition and communication board in MicroTCA.4 crates, connecting itself to both the crate (via the AMC backplane connector) and add-on cards, which may be one or two FMCs mounted on the board, or a MicroTCA Rear-Transition Module, which connectos to the board via the Zone 3 connector.
+The AMC FMC Carrier (AFC) is a versatile board built around a Xilinx Artix 7 FPGA. Its main purpose is to act as a data acquisition and communication board in MicroTCA.4 crates, connecting itself to both the crate (via the AMC backplane connector) and the add-on cards, which may be one or two FMCs mounted on the board, or a MicroTCA Rear-Transition Module, which connects to the board via the Zone 3 connector.
 
-Besides the FPGA, the board also carries a microcontroller - specifically a NXP LPC1764 - which is called MMC - Module Manage Controller. This microcontroller is responsible for board-related tasks, such as DC-DC converters operation, temperature sensing, communication with the crate manager, firmware updates and device configuration.  This is in opposition to application-related tasks, which are performed by the FPGA.
+Besides the FPGA, the board also carries a microcontroller - specifically a NXP LPC1764, which is called Module Manage Controller (MMC). This microcontroller is responsible for board-related tasks, such as DC-DC converters operation, temperature sensing, communication with the crate manager, firmware updates and device configuration.  This is in opposition to application-related tasks, which are performed by the FPGA.
 
-The FPGA is also connected the a DDR3 SDRAM block with 4 ICs, which are only accessible via the FPGA. Other devices in the board includes a signal crossbar IC, which works as a clock distribution device, switches for internal I2C busses, temperature and current sensors, JTAG switches, DC-DC converters and peripheral circuits for both the microcontroller and the FPGA.
+The FPGA is also connected the a DDR3 SDRAM block with 4 ICs, which are only accessible via the FPGA. Other devices in the board include a signal crossbar IC, which works as a clock distribution device, switches for internal I2C busses, temperature and current sensors, JTAG switches, DC-DC converters and peripheral circuits for both the microcontroller and the FPGA.
 
 #+CAPTION: Block diagram with AFC digital connections.
 #+NAME: fig:greg-diagram
 [[./greg-diagram.png]]
 
 ** Connectors in the AFC
-   
-All three connectors in the AFC (AMC, RTM and FMC) carries all these kinds of signals:
+
+All three connectors in the AFC (AMC, RTM and FMC) carry all these kinds of signals:
 
  * single-ended slow digital signals, such as I2C or GPIO connections
  * differential multigigabit, always connected to the FPGA transceivers
  * clock signals, some bidirectional, up to several hundred MHZ
  * power lanes, with power going to the AFC in the case of the AMC connector, and from the AFC in the FMC and RTM connectors
 
-No device in the board routes all these signals - some go the FPGA, some to the MMC, some others are first routed to the clock distribution IC. On the other side of the AMC connection, some signals are send to the main MCH, others to the redundant MCH, while others can only be reached by other AMCs.
+No device in the board routes all these signals - some go the FPGA, some to the MMC, some others are first routed to the clock distribution IC. On the other side of the AMC connection, some signals are sent to the main MCH, others to the redundant MCH, while others can only be reached by other AMCs.
 
 *** AMC connector
 
-This is the main connector in the board, connecting the AFC to the MicroTCA.4 backplane. From this connection the AFC receives power (3V3 and 12V), communicates with the crate management (using a I2C interface), get or send clock signals and realizes massive data transfers to and from other boards in the crate, using protocols such as 1GBe and PCIe.
+This is the main connector in the board, connecting the AFC to the MicroTCA.4 backplane. From this connection the AFC receives power (3.3V and 12V), communicates with the crate management (using a I2C interface), gets or sends clock signals and realizes massive data transfers to and from other boards in the crate, using protocols such as 1GBe and PCIe.
 
-The AMC connector is in the rear board edge, and in the AFC it is implemented as a double-sided finger connector, etched in the PCB. This connector has 170 connected pins, with different sizes for different purposes. The space between smaller pins and the board edge are filled with unconnected pads that with solely mechanical functions, protecting both the AMC board and the backplane connector.
+The AMC connector is located at the rear board edge, and in the AFC it is implemented as a double-sided finger connector, etched in the PCB. This connector has 170 connected pins, with different sizes for different purposes. The space between smaller pins and the board edge are filled with unconnected pads that have solely mechanical functions, protecting both the AMC board and the backplane connector.
 
 The schematic component for the AMC connector is in [[docview:AMC_FMC_Carrier.pdf::1][page 1 of the AFC schematic sheet]]. Please note that only pins 1-170 are real pins, while pins 171-274 represents protective pads that shall not be electrically connected. In the PCB layout, pin 1 is near the corner of bottom layer, where both the FPGA and the FMC connectors are mounted. The pin number counts up in the same side, with pin 85 being in the bottom layer, close to the RTM connetor. Pin 86 is the upmost pin of the top layer, near the RTM connector. Finally, pin 170 is marked by a slight stub in the middle of the pin, and is located in the lower part of the top layer, near the corner of the board.
 
 *** FMC Connectors
 
-FMC stands for FPGA Mezzanine Card, a standard of cards defined by ANSI/VITA. AFC has two of them, both of the HPC (high pin count) category, each sporting 400 pins. Besides the MGTs, these connectors also have several single-ended digital pins, pins dedicated to clock and power. All the connections may be checked in the [[docview:AMC_FMC_Carrier.pdf::4][page 4 of AFC's schematics]].
+FMC stands for FPGA Mezzanine Card, a standard of cards defined by ANSI/VITA. AFC has two of them, both of the HPC (high pin count) category, each having 400 pins. Besides the MGTs, these connectors also have several single-ended digital pins, pins dedicated to clock and power. All the connections may be checked on [[docview:AMC_FMC_Carrier.pdf::4][page 4 of AFC's schematics]].
 
-The digital signals on the FMC to be tested are defined as in the table [[file:CTI-AFC_datasheet.pdf][table 12 of AFC datasheet]]. Also, the MGT links are defined in the [[MGT capacitor table]]. Of special interest are the FMC clocks that are connected to the FPGA, which may be tested in a loopback or by an external source.
+The digital signals on the FMC to be tested are defined on [[file:CTI-AFC_datasheet.pdf][table 12 of AFC datasheet]]. Also, the MGT links are defined in the [[MGT capacitor table]]. Emphasis should be given to the FMC clocks that are connected to the FPGA, which may be tested in a loopback or by an external source.
 
-Besides the digital signals, the power signals on the FMC connector must also be tested. These power busses always go from the AFC to the FMC, and they have three levels: 12V, 3.3V and Vadj, which can be adjusted from 1.8V to 3.3V. This adjustement is defined by the MMC controller, which sets the value by adjusting the IC11 digital resistor, [[docview:AMC_FMC_Carrier.pdf::26][at page 26 of AFC's schematics.]]
+Besides the digital signals, the power signals on the FMC connectors must also be tested. These power buses always go from the AFC to the FMC, and they have three levels: 12V, 3.3V and Vadj, which can be adjusted from 1.8V to 3.3V. This adjustement is defined by the MMC controller, which sets the value by adjusting the IC11 digital resistor, as seen [[docview:AMC_FMC_Carrier.pdf::26][on page 26 of AFC's schematics.]]
 
 *** RTM Connector
 
-The RTM connector is the connector located in the back side of the board, allowing extension to another board inside the crate. As the FMC, it draws power from the AFC, but only on 12V form. This power is controlled by the MMC board, by the transitor switch located in the [[docview:AMC_FMC_Carrier.pdf::10][page 10 of the schematic sheet]], by the signal EN_RTM_PWR.
+The RTM connector is the connector located in the back side of the board, allowing extension to another board inside the crate. As the FMC, it draws power from the AFC, but only on 12V form. This power is controlled by the MMC board, more precisely by the transitor switch located on [[docview:AMC_FMC_Carrier.pdf::10][page 10 of the schematic sheet]] by the signal EN_RTM_PWR.
 
-The MGT signals of the RTM are also listed in the [[MGT capacitor table]]. The I2C signals, and some slow digital signals are connected to the MMC, while some other digital signals goes to the FPGA. [[docview:AMC_FMC_Carrier.pdf::21][Page 21 of the schematic reference]] lists all connections in the RTM connector.
+The MGT signals of the RTM are also listed in the [[MGT capacitor table]]. The I2C signals and some slow digital signals are connected to the MMC, while some other digital signals go to the FPGA. [[docview:AMC_FMC_Carrier.pdf::21][Page 21 of the schematic reference]] lists all connections in the RTM connector.
 
 *** MGT ports
 
-One peculiarity of the multigigabit (MGT) signals in the AFC board is the routing of the same signal from the FPGA to several connectors, with the paths separated by capacitors which may or may not be placed, and effectively work as high speed jumpers. 
+One peculiarity of the multigigabit (MGT) signals in the AFC board is the routing of the same signal from the FPGA to several connectors with the paths separated by capacitors, which may or may not be placed and effectively work as high speed jumpers.
 
-Even thought it is neither possible nor desired to route the same MGT link to several connector pins, this scheme allows the designer to choose which signal will route to wich connector by placing a capacitor while not placing the other.
+Even thought it is neither possible nor desired to route the same MGT link to several connector pins, this scheme allows the designer to choose which signal will route to each connector by placing a capacitor while not placing the other.
 
 #+BEGIN_landscape
 #+CAPTION: Multigigabit transceiver configurations
@@ -81,7 +81,7 @@ Even thought it is neither possible nor desired to route the same MGT link to se
   |116_3      |RTM      |D6   |C6 |F6  |E6 |RTM MGT - Port 5         |C793|C791|C790|C789 |XXXXXXXX|
   |           +---------+-----+---+----+---+-------------------------+----+----+----+-----+--------+
   |           |FMC1     |C7   |C6 |C3  |C2 |FMC1 MGT - Port 0        |c181|c180|c179|c178 |        |
-  +-----------+---------+-----+---+----+---+-------------------------+----+----+----+-----+--------+   
+  +-----------+---------+-----+---+----+---+-------------------------+----+----+----+-----+--------+
   |116_2      |RTM      |D3   |C3 |F3  |E3 |RTM MGT - PORT 8         |C788|C787|C786|C785 |XXXXXXXX|
   |           +---------+-----+---+----+---+-------------------------+----+----+----+-----+--------+
   |           |FMC1     |A3   |A2 |A23 |A22|FMC1 MGT - PORT 1        |C187|C186|C185|C184 |        |
@@ -92,7 +92,7 @@ Even thought it is neither possible nor desired to route the same MGT link to se
   +-----------+---------+-----+---+----+---+-------------------------+----+----+----+-----+--------+
   |116_0      |RTM      |D5   |C5 |F5  |E5 |RTM MGT - PORT 6         |C780|C779|C778|C777 |XXXXXXXX|
   |           +---------+-----+---+----+---+-------------------------+----+----+----+-----+--------+
-  |           |FMC1     |A11  |A10|A31 |A30|FMC1 MGT - PORT 3        |C197|C196|C195|C194 |        | 
+  |           |FMC1     |A11  |A10|A31 |A30|FMC1 MGT - PORT 3        |C197|C196|C195|C194 |        |
   +-----------+---------+-----+---+----+---+-------------------------+----+----+----+-----+--------+
   |213_3      |RTM      |D7   |C7 |F7  |E7 |RTM MGT - PORT 4         |C812|C811|C810|C809 |        |
   |           +---------+-----+---+----+---+-------------------------+----+----+----+-----+--------+
@@ -116,7 +116,7 @@ Even thought it is neither possible nor desired to route the same MGT link to se
   |           +---------+-----+---+----+---+-------------------------+----+----+----+-----+--------+
   |           |FMC2     | C7  |C6 |C3  |C2 |FMC MGT - PORT 0         |C201|C200|C199|C198 |        |
   |           +---------+-----+---+----+---+-------------------------+----+----+----+-----+--------+
-  |           |AMC      |111  |112|114 |115|AMC P2P MGT - PORT 12    |C825|C824|C823|C822 |XXXXXXXX|       
+  |           |AMC      |111  |112|114 |115|AMC P2P MGT - PORT 12    |C825|C824|C823|C822 |XXXXXXXX|
   +-----------+---------+-----+---+----+---+-------------------------+----+----+----+-----+--------+
   |216_3      |AMC      |69   |68 |66  |65 |Fat Pipe 1 Port 7 - PCIe |C345|C344|C343|C342 |XXXXXXXX|
   +-----------+---------+-----+---+----+---+-------------------------+----+----+----+-----+--------+
@@ -147,5 +147,3 @@ Even thought it is neither possible nor desired to route the same MGT link to se
   |           |also add resistor |      |      |      |      |R323|R322|R324|R325 |
   +-----------+------------------+------+------+------+------+----+----+----+-----+
 #+END_landscape
-
-

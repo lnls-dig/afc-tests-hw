@@ -59,7 +59,7 @@ Even thought it is neither possible nor desired to route the same MGT link to se
 #+NAME: MGT capacitor table
   +-----------+---------+------------------+-------------------------+--------------------+--------+
   |Transceiver|Connector|Connector pin     |Function                 |Jumper cap          |LNLS BPM|
-  |           +         |                  |                         |                    |        |
+  |           |         |                  |                         |                    |        |
   |           |         +-----+---+----+---+                         +----+----+----+-----+--------+
   |           |         |RxN  |RxP|TxN |TxP|                         | RxN|RxP |TxN |TxP  |        |
   +-----------+---------+-----+---+----+---+-------------------------+----+----+----+-----+--------+

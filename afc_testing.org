@@ -70,11 +70,11 @@ Even thought it is neither possible nor desired to route the same MGT link to se
   |           +---------+-----+---+----+---+-------------------------+----+----+----+-----+--------+
   |           |AMC      |24   |23 |21  |20 |1Gb Ethernet - Port 1    |C625|C228|C227|C225 |XXXXXXXX|
   +-----------+---------+-----+---+----+---+-------------------------+----+----+----+-----+--------+
-  |113_1      |AMC      |33   |32 |30  |29 |SATA - Port 2 [1]        |C512|C455|C514|C575 |XXXXXXXX|
+  |113_1      |AMC      |33   |32 |30  |29 |SATA - Port 2 [ 1 ]      |C512|C455|C514|C575 |XXXXXXXX|
   |           +---------+-----+---+----+---+-------------------------+----+----+----+-----+--------+
   |           |AMC      |93   |94 |96  |97 |Fat Pipe 2 - Port 9      |C325|C324|C323|C322 |        |
   +-----------+---------+-----+---+----+---+-------------------------+----+----+----+-----+--------+
-  |113_0      |AMC      |39   |38 |36  |35 |SATA - Port 3 [1]        |C751|C590|C752|C753 |XXXXXXXX|
+  |113_0      |AMC      |39   |38 |36  |35 |SATA - Port 3 [ 1 ]      |C751|C590|C752|C753 |XXXXXXXX|
   |           +---------+-----+---+----+---+-------------------------+----+----+----+-----+--------+
   |           |AMC      |87   |88 |90  |91 |Fat Pipe 2 - Port 8      |C321|C320|C319|C318 |        |
   +-----------+---------+-----+---+----+---+-------------------------+----+----+----+-----+--------+
@@ -126,11 +126,10 @@ Even thought it is neither possible nor desired to route the same MGT link to se
   +-----------+---------+-----+---+----+---+-------------------------+----+----+----+-----+--------+
   |216_0      |AMC      |48   |47 |45  |44 |Fat Pipe 1 Port 4 - PCIe |C337|C336|C335|C334 |XXXXXXXX|
   +-----------+---------+-----+---+----+---+-------------------------+----+----+----+-----+--------+
-
 #+END_landscape
 
-[1] If this option is choosen, the SATA ports may also be redirected from the MGT to board-to-cable connectors, instead of the AMC connector. So, in addition to the capacitors in the last table, the following capacitors must also be removed/added to direct the signal to the desired connector:
-
+#+BEGIN_landscape
+[ 1 ] If this option is choosen, the SATA ports may also be redirected from the MGT to board-to-cable connectors, instead of the AMC connector. So, in addition to the capacitors in the last table, the following capacitors must also be removed/added to direct the signal to the desired connector:
   +-----------+------------------+---------------------------+--------------------+
   |Port       |Connector         |Connector pin              |Jumper cap          |
   |           +                  +------+------+------+------+----+----+----+-----+
@@ -147,5 +146,6 @@ Even thought it is neither possible nor desired to route the same MGT link to se
   |           |RTM/FMC - must    |F5/K12|E5/L12|B5/G11|A5/H11|C820|C821|C818|C819 |
   |           |also add resistor |      |      |      |      |R323|R322|R324|R325 |
   +-----------+------------------+------+------+------+------+----+----+----+-----+
+#+END_landscape
 
 

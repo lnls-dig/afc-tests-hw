@@ -56,8 +56,10 @@ One peculiarity of the multigigabit (MGT) signals in the AFC board is the routin
 Even thought it is neither possible nor desired to route the same MGT link to several connector pins, this scheme allows the designer to choose which signal will route to each connector by placing a capacitor while not placing the other.
 
 #+BEGIN_landscape
+
 #+CAPTION: Multigigabit transceiver configurations
 #+NAME: MGT capacitor table
+#+LATEX: {\footnotesize
   +-----------+---------+------------------+-------------------------+--------------------+--------+
   |Transceiver|Connector|Connector pin     |Function                 |Jumper cap          |LNLS BPM|
   |           +         |                  |                         |                    |        |
@@ -128,6 +130,7 @@ Even thought it is neither possible nor desired to route the same MGT link to se
   +-----------+---------+-----+---+----+---+-------------------------+----+----+----+-----+--------+
   |216_0      |AMC      |48   |47 |45  |44 |Fat Pipe 1 Port 4 - PCIe |C337|C336|C335|C334 |XXXXXXXX|
   +-----------+---------+-----+---+----+---+-------------------------+----+----+----+-----+--------+
+#+LATEX: }
 #+END_landscape
 
 #+BEGIN_landscape

@@ -39,7 +39,7 @@ The schematic component for the AMC connector is in [[docview:AMC_FMC_Carrier.pd
 
 FMC stands for FPGA Mezzanine Card, a standard of cards defined by ANSI/VITA. AFC has two of them, both of the HPC (high pin count) category, each having 400 pins. Besides the MGTs, these connectors also have several single-ended digital pins, pins dedicated to clock and power. All the connections may be checked on [[docview:AMC_FMC_Carrier.pdf::4][page 4 of AFC's schematics]].
 
-The digital signals on the FMC to be tested are defined on [[file:CTI-AFC_datasheet.pdf][table 12 of AFC datasheet]]. Also, the MGT links are defined in the [[MGT capacitor table]]. Emphasis should be given to the FMC clocks that are connected to the FPGA, which may be tested in a loopback or by an external source.
+The digital signals on the FMC to be tested are defined on [[file:CTI-AFC_datasheet.pdf][table 12 of AFC datasheet]]. Also, the MGT links are defined in the [[MGT capacitor table][MGT capacitor table]]. Emphasis should be given to the FMC clocks that are connected to the FPGA, which may be tested in a loopback or by an external source.
 
 Besides the digital signals, the power signals on the FMC connectors must also be tested. These power buses always go from the AFC to the FMC, and they have three levels: 12V, 3.3V and Vadj, which can be adjusted from 1.8V to 3.3V. This adjustement is defined by the MMC controller, which sets the value by adjusting the IC11 digital resistor, as seen [[docview:AMC_FMC_Carrier.pdf::26][on page 26 of AFC's schematics.]]
 
@@ -47,7 +47,7 @@ Besides the digital signals, the power signals on the FMC connectors must also b
 
 The RTM connector is the connector located in the back side of the board, allowing extension to another board inside the crate. As the FMC, it draws power from the AFC, but only on 12V form. This power is controlled by the MMC board, more precisely by the transitor switch located on [[docview:AMC_FMC_Carrier.pdf::10][page 10 of the schematic sheet]] by the signal EN_RTM_PWR.
 
-The MGT signals of the RTM are also listed in the [[MGT capacitor table]]. The I2C signals and some slow digital signals are connected to the MMC, while some other digital signals go to the FPGA. [[docview:AMC_FMC_Carrier.pdf::21][Page 21 of the schematic reference]] lists all connections in the RTM connector.
+The MGT signals of the RTM are also listed in the [[MGT capacitor table][MGT capacitor table]]. The I2C signals and some slow digital signals are connected to the MMC, while some other digital signals go to the FPGA. [[docview:AMC_FMC_Carrier.pdf::21][Page 21 of the schematic reference]] lists all connections in the RTM connector.
 
 *** MGT ports
 
@@ -55,9 +55,11 @@ One peculiarity of the multigigabit (MGT) signals in the AFC board is the routin
 
 Even thought it is neither possible nor desired to route the same MGT link to several connector pins, this scheme allows the designer to choose which signal will route to each connector by placing a capacitor while not placing the other.
 
+
 #+BEGIN_landscape
 #+CAPTION: Multigigabit transceiver configurations
 #+NAME: MGT capacitor table
+#+LATEX: {\footnotesize
   +-----------+---------+------------------+-------------------------+--------------------+--------+
   |Transceiver|Connector|Connector pin     |Function                 |Jumper cap          |LNLS BPM|
   |           |         |                  |                         |                    |        |
@@ -128,6 +130,7 @@ Even thought it is neither possible nor desired to route the same MGT link to se
   +-----------+---------+-----+---+----+---+-------------------------+----+----+----+-----+--------+
   |216_0      |AMC      |48   |47 |45  |44 |Fat Pipe 1 Port 4 - PCIe |C337|C336|C335|C334 |XXXXXXXX|
   +-----------+---------+-----+---+----+---+-------------------------+----+----+----+-----+--------+
+#+LATEX: }
 #+END_landscape
 
 #+BEGIN_landscape
